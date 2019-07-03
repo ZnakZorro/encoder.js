@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8"> 
+	<title>EncoderScroll</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1"> 
+	<meta name="mobile-web-app-capable" content="yes"> 	
+   <link rel="icon" type="image/png" size="128x128" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAb1BMVEX/34H/////67H/ySj/007+/f3/yzD/3nz/6an/4Yr/4IT/zj7/23H/1l///PT/78D/2GT/0Un/+uz/+en/9NT/8tD/7b3/7Lf/6q//5qD/5Zn/45T/0ET/zTf/+OT/01X/+OP/8cf/67P/+OX/5qHkxHuHAAACz0lEQVR42u2b7VLiQBBFpzPcfAGCiigooO6+/zPuNtZChkxIUxW5WcNJpfiZY09PeroRJ61g+zR7Ts7zsnotSmcgm75tUj+er9/li1aBu6fPpI38tXQmspE/MNlaBLBIWnlZOyOT1FdIl6EAREHwebdMWskLZ2TuT1i1Cdw9G55fmv9+X2MZLAFO726fn6W+RvorENCr+rk0rH/hrIx8hEmQhAiXYZG0s3ZWMh/lfS+Av9T3X9JO7sxMfZS1CkBiPBkEXp2ZNx9l3iiAT0MGlM7MxkcZNy7BNmln5eykPkqqArjCCjjfQKPAzCBQdCUQW4Jng0DZjUCcxIDrSgAAVQB63wR+fA7IKQjPhFcXgFQEIIwIQJSr5YDUATgCIUESsiKgUHNAAXMXKNz3AMCNAPQi5ABZQBWq23B4SUivBQrzVQxFMORaAIB+IKluQzAFQKoFkECAuQ2VoSehkJNwiAICgHwqZrdmyl4AnG2ocPsC9qsYQH9exQJOawZqLYBe3FoAdi0A2J2RUAUAamumgN2agdsXAD2akhEEoBwj8AXhSNaXUzEg7L4A5HIsYJdjuZXjWzkmTcnIrRnok9JqBDC4zmhPIMAc1SqDmw/QJyQQBEmIIQpA+nIqJvUFQG9mRLoe9CEVoRwPPQl79H3BYVQ7sN5Q0IMjWVUA3NaM3RkJwBUgl2OF/50R+R+ZwI2APn7ItUBdyAKqQK8F7NaMeCAZGfAXcFEO3AS+Q+C/yQGFKgCFGgF6DvwT2HUskF3aG047Fpi4KEVjBCxrkHo7cxdl1SiQGwTG3s7IRZk1LsGjQeDe20ldlIfg95RBNSwMBhtvZ+oi5LVflB4FHncdhyCyD8p9AA53KCAfo3bevJ1x3WBxGn4EB5Kk4zy8z2oZeF5APnbfGYNyIY2ogPJYGPJg482k06NC/iCtAqqQu2mrwji1K4zmk8wVv2cPcp4/6tFdlDUOkjsAAAAASUVORK5CYII=" />
+	<style>
+		* {box-sizing: border-box;}
+		html, body {height: 100%;}
+		body,button {font:normal 12pt Verdana; margin:0.5em; padding:0.5em;}
+		button:focus {outline:0;}
+		p {margin:0.2em 0;}	
+		#container {
+		}	
+      .blok {background:#f4f4f4;border:1px solid silver;padding:0.5em; margin:0.5em;}
+      .d {font-size:1.1em; font-weight:bold;}
+      
+		@media screen and (max-width: 640px){
+			body {margin:0.2em}
+		}		
+	</style>
+
+	<script src="ajax.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+
+<script>
+"use strict"
+const $=(y)=>document.querySelector(y);
+const $$=(y)=>document.querySelectorAll(y);
+var maXheight = 500;
+
+function getRoom(room){
+   console.log(room);
+	getData('/rooms/sala_wi2_227.html', {body:1})
+	.then(html => {
+		//console.log(html);
+        if(html) {
+            $('#container').innerHTML = html;
+                resizeWindow();
+        }
+	})
+	.catch(error => console.error(error));
+}
+
+function resizeWindow(){
+   var body = document.body,
+       html = document.documentElement;		
+   var w = window.innerWidth;
+   var h = window.innerHeight;
+       
+   maXheight = Math.max( body.scrollHeight, body.offsetHeight,html.clientHeight, html.scrollHeight, html.offsetHeight );      
+   console.log( body.scrollHeight, body.offsetHeight,html.clientHeight, html.scrollHeight, html.offsetHeight );      
+   console.log(maXheight,h,maXheight-h);      
+   maXheight-=h;  
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+   console.log('dom ready');
+   getRoom('wi2_227');
+   window.scrollTo(0, 0);
+});      
+
+
+
+</script>	
+	
+</head>
+<body>
+
+<div id="container">
+
+
+
+</div>
+
+  
+<script>
+'use strict';
+
+	var socket = io();
+
+(function() {
+		
+		socket.on('message', onDrawingEvent);
+		socket.on('sala', onSalaEvent);
+
+/*	function newSocketTime(time){
+		socket.emit('config',{time:time})
+		document.getElementById('convTime').textContent=time;
+	}	*/
+   
+		function onSalaEvent(data){
+         console.log('#onSalaEvent=',data);
+      }
+      
+      
+		function onDrawingEvent(data){
+         let top = data.top *20;
+         top = top<maXheight ? top: maXheight;
+         window.scrollTo(0, top);
+         console.log('#110 message/top/max=',data,top,maXheight);
+      }
+		
+	socket.on('connect_error', function (data) {
+        console.log('connection_error restart 15 sek');
+		setTimeout(function(){
+			console.log('connection again');
+			var socket = io();
+			socket.on('message', onDrawingEvent);
+		},15000);
+    });		
+
+})();
+	
+
+</script>  
+</body>
+</html>
